@@ -6,9 +6,15 @@ import pdb
 import yfinance as yf
 import pandas as pd
 
+# sigmoid
 def sigmoid(x):   return 1 / (1 + np.exp(-x))
 def sigmoidd(x):  return sigmoid(x) * (1 - sigmoid(x))
 def sigmoidds(s, accel=1.0): return s * (1 - s) * accel
+
+# hyperbolic tangent 
+def hyptan(x):   return (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
+def hyptandh(h): return (1 - h**2)  #  1 - tanh^2(x)
+
 def prtArr(arr, lbl=None):
     if lbl: print('----', lbl, ' ', arr.shape)
     for rw in arr:
