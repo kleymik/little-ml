@@ -79,7 +79,7 @@ def main(IN=None, OUT=None, lev1Num=4):  # number of middle-level neurons
     prtArr(syn12, 'syn12')
     prtArr(OUT,   'OUT')
 
-    for j in range(int(1e7)):
+    for j in range(int(1e8)):
         # fwd prop the reponse
         lev1 = sigmoid(  IN @ syn01)    # Num
         lev2 = sigmoid(lev1 @ syn12)
