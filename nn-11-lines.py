@@ -54,20 +54,8 @@ def train(IN=None, OUT=None, lev1Num=4):  # number of middle-level neurons
     # lev1Num = 4
     # lev2Num = 2
 
-    if IN is None:
-        IN = np.array([[ 0.0, 0.5, 1.0, 1.0],   # 5 X lev0Num
-                       [ 1.0, 1.0, 1.0, 1.0],
-                       [ 1.0, 0.0, 1.0, 0.0],
-                       [ 1.0, 0.8, 1.0, 0.2],
-                       [ 0.0, 1.0, 1.0, 0.0]])
     lev0Num = IN.shape[1]                      # cols=number of indep inputs
-    if OUT is None:
-        OUT = np.array([[0.5, 1.0],            # 5 x lev2Num
-                        [1.0, 0.0],
-                        [1.0, 0.3],
-                        [0.6, 0.8],
-                        [0.9, 0.0]])
-    lev2Num = OUT.shape[1]                     # cols=number of indep inputs
+    lev2Num = OUT.shape[1]                     # cols=number of dep   outputs
 
     seed(1)
     syn01 = 2 * random((lev0Num, lev1Num)) - 1
@@ -114,15 +102,6 @@ print(df.head)
 print(df.shape)
 # 1=dummy variable to identify AAPL
 # inSet = [ np.append(df['AAPL'].loc[-di:-di+6].values, 1) for di in range(-30,-20) ] # 10 trainig sample of six consectutive weeks
-numTrain     =  15 # number of training samples
-tsPttrnLen   =   4 # length of input pattern timeseries
-seriesStrt   = -25
-scaleFactor  = 1e-3
-inSet = [ np.append(df[di:di+tsPttrnLen].AAPL.values * scaleFactor, 1)
-          for di in range(seriesStrt, seriesStrt + numTrain) ] # 10 training sample of six consecutive wkly rtns
-# TBD convert into Buy Sell: increase => Sell, decrease=>Buy
-otSet = [ np.append(df[di+tsPttrnLen:di+tsPttrnLen+2].AAPL.values * scaleFactor, 1)
-          for di in range(seriesStrt,seriesStrt + numTrain) ] # try to predict next 2 wkly rtns
 
 def main():
 
@@ -137,15 +116,16 @@ def main():
     if True:
         if True: df = getStockSeries(stck='AAPL')  # as weekly
         else:    df = pd.read_csv('./yfData.csv')
-            print(df.head)
-            print(df.shape)
-            # 1=dummy variable to identify AAPL
-            # inSet = [ np.append(df['AAPL'].loc[-di:-di+6].values, 1) for di in range(-30,-20) ] # 10 trainig sample of six consectutive weeks
-            inSet = [ np.append(df[di:di+tsPttrnLen].AAPL.values * scaleFactor, 1)
-            for di in range(seriesStrt, seriesStrt + numTrain) ] # 10 training sample of six consecutive wkly rtns
-            # TBD convert into Buy Sell: increase => Sell, decrease=>Buy
-            otSet = [ np.append(df[di+tsPttrnLen:di+tsPttrnLen+2].AAPL.values * scaleFactor, 1)
-                          for di in range(seriesStrt,seriesStrt + numTrain) ] # try to predict next 2 wkly rtns
+            
+        print(df.head)
+        print(df.shape)
+        # 1=dummy variable to identify AAPL
+        # inSet = [ np.append(df['AAPL'].loc[-di:-di+6].values, 1) for di in range(-30,-20) ] # 10 trainig sample of six consectutive weeks
+        inSet = [ np.append(df[di:di+tsPttrnLen].AAPL.values * scaleFactor, 1)
+        for di in range(seriesStrt, seriesStrt + numTrain) ] # 10 training sample of six consecutive wkly rtns
+        # TBD convert into Buy Sell: increase => Sell, decrease=>Buy
+        otSet = [ np.append(df[di+tsPttrnLen:di+tsPttrnLen+2].AAPL.values * scaleFactor, 1)
+                     for di in range(seriesStrt,seriesStrt + numTrain) ] # try to predict next 2 wkly rtns
         
         train(IN=np.vstack(inSet), OUT=np.vstack(otSet), lev1Num=10)
         #train(IN=df.values, OUT=dfb.values, lev1Num=4)
