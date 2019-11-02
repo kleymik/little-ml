@@ -12,7 +12,7 @@ def sigmoidds(s, accel=1.0): return s * (1 - s) * accel
 def prtArr(arr, lbl=None):
     if lbl: print('----', lbl, ' ', arr.shape)
     for rw in arr:
-        for x in rw: print(f'{x:10.4f}  ', end='')
+        for x in rw: print(f'{x:10.4f}', end='')
         print()
     print()
 
@@ -49,7 +49,7 @@ def getCheckDummyData():
     return IN, OUT
 
 
-def main(IN=None, OUT=None, lev1Num=4):  # number of middle-level neurons
+def train(IN=None, OUT=None, lev1Num=4):  # number of middle-level neurons
     # lev0Num = 4
     # lev1Num = 4
     # lev2Num = 2
@@ -124,10 +124,31 @@ inSet = [ np.append(df[di:di+tsPttrnLen].AAPL.values * scaleFactor, 1)
 otSet = [ np.append(df[di+tsPttrnLen:di+tsPttrnLen+2].AAPL.values * scaleFactor, 1)
           for di in range(seriesStrt,seriesStrt + numTrain) ] # try to predict next 2 wkly rtns
 
-main(IN=np.vstack(inSet), OUT=np.vstack(otSet), lev1Num=10)
-#main(IN=df.values, OUT=dfb.values, lev1Num=4)
+def main():
 
-# main()
-#for v in res['Adj Close'][-100:]: print(v)
+    numTrain     =  15 # number of training samples
+    tsPttrnLen   =   4 # length of input pattern timeseries
+    seriesStrt   = -25
+    scaleFactor  = 1e-3
+
+    if False:
+        IN, OUT = getCheckDummyData()
+        train(IN=IN, OUT=OUT)
+    if True:
+        if True: df = getStockSeries(stck='AAPL')  # as weekly
+        else:    df = pd.read_csv('./yfData.csv')
+            print(df.head)
+            print(df.shape)
+            # 1=dummy variable to identify AAPL
+            # inSet = [ np.append(df['AAPL'].loc[-di:-di+6].values, 1) for di in range(-30,-20) ] # 10 trainig sample of six consectutive weeks
+            inSet = [ np.append(df[di:di+tsPttrnLen].AAPL.values * scaleFactor, 1)
+            for di in range(seriesStrt, seriesStrt + numTrain) ] # 10 training sample of six consecutive wkly rtns
+            # TBD convert into Buy Sell: increase => Sell, decrease=>Buy
+            otSet = [ np.append(df[di+tsPttrnLen:di+tsPttrnLen+2].AAPL.values * scaleFactor, 1)
+                          for di in range(seriesStrt,seriesStrt + numTrain) ] # try to predict next 2 wkly rtns
+        
+        train(IN=np.vstack(inSet), OUT=np.vstack(otSet), lev1Num=10)
+        #train(IN=df.values, OUT=dfb.values, lev1Num=4)
+        #for v in res['Adj Close'][-100:]: print(v)
 
 
