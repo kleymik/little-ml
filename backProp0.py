@@ -17,7 +17,7 @@ syn1 = 2*np.random.random((4,1)) - 1 #  4 +/- 1 adjsutable loadings onto one out
 
 lev0 = IN                               # 4 samples of input triple
 
-for j in range(int(1e6)):
+for j in range(int(1e5)):
     # print(j)
     # forward prop the response
     lev1 = 1 / (1+np.exp(-(lev0 @ syn0)))  # l1 = level 1 neuron state
