@@ -21,9 +21,10 @@ def prtArr(arr, lbl=None, flatP=False):
 	if lbl: print('----', lbl, ' ', arr.shape)
 	for rw in arr:
 		for x in rw: print(f'{x:10.4f}', end='')
-		if flatP: print(f' - ', end='')
-		else: print()
-	print()
+		if flatP: print(f'|', end='')
+		else:     print()
+	if flatP: print(f'|', end='')
+	else:     print()
 
 # Data Sets
 
@@ -98,12 +99,14 @@ def train(IN=None, OUT=None, midLayer=3, iterLim=1e6, errThresh=1e-4):  # number
 
 		syn12 += lev1.T @ lev2Dlta	  # update synapse weights
 		syn01 += IN.T   @ lev1Dlta
+		totErr = (outErrs * outErrs).sum()
 		if (j % 10000==0):
-			print(f'{j} ', end='')
-			print('err=', (outErrs * outErrs).sum(), end='')
-			printArr(syn01, flatP=True)
+			print(f'{j:12.0f} ', end='')
+			print(f'err={totErr:10.4f} ', end='')
+			prtArr(syn01, flatP=True)
+			# prtArr(syn12, flatP=True)			
 			print()
-		if (outErrs * outErrs).sum() < errThresh: # sum of sqrd errors
+		if totErr < errThresh: # sum of sqrd errors
 			print(outErrs)
 			print()
 			break
