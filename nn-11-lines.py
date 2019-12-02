@@ -20,10 +20,10 @@ def hyptandh(h): return (1 - h**2)  #  1 - tanh^2(x)
 def prtArr(arr, lbl=None, flatP=False):
 	if lbl: print('----', lbl, ' ', arr.shape)
 	for rw in arr:
-		for x in rw: print(f'{x:10.4f}', end='')
-		if flatP: print(f'|', end='')
+		for x in rw: print(f'{x:10.7f},', end='')
+		if flatP: print(f'', end='')
 		else:     print()
-	if flatP: print(f'|', end='')
+	if flatP: print(f'', end='')
 	else:     print()
 
 # Data Sets
@@ -49,29 +49,40 @@ def getStockSeries(stck='AAPL'):
 	return df
 
 def getCheckDummyData0():
-	IN = np.array([[ 0.0, 0.0, 1.0],	   # 4 X lev0Num
+	IN = np.array([[ 0.0, 0.0, 1.0],	  # 4 X lev0Num
 				   [ 1.0, 1.0, 1.0],
 				   [ 1.0, 0.0, 1.0],
 				   [ 0.0, 1.0, 1.0]])
-	OUT = np.array([[0.0],				 # 4 x lev2Num
+	OUT = np.array([[0.0],				  # 4 x lev2Num
 					[1.0],
 					[1.0],
 					[0.0]])
 	return IN, OUT
 
 def getCheckDummyData5():
-	IN = np.array([[ 0.0, 0.5, 1.0, 1.0],   # 5 X lev0Num
+	IN = np.array([[ 0.0, 0.5, 1.0, 1.0], # 5 X lev0Num
 				   [ 1.0, 1.0, 1.0, 1.0],
 				   [ 1.0, 0.0, 1.0, 0.0],
 				   [ 1.0, 0.8, 1.0, 0.2],
+				   [ 1.0, 0.4, 1.0, 0.0],				   
 				   [ 0.0, 1.0, 1.0, 0.0]])
-	OUT = np.array([[0.5, 1.0],			# 5 x lev2Num
+	OUT = np.array([[0.5, 1.0],			  # 5 x lev2Num
 					[1.0, 0.0],
 					[1.0, 0.3],
 					[0.6, 0.8],
+					[0.6, 0.9],					
 					[0.9, 0.0]])
 	return IN, OUT
 
+def genRandomCrossings():
+	''' create a set of traing examples
+	    random series, count the number above and the number below
+	'''
+	# series = np.rand.rand(8)
+	# seriesMean = series.mean()
+    # seriesAbove = series > seriesMean
+	# seriesBelow = series < seriesMean
+	pass
 
 def train(IN=None, OUT=None, midLayer=3, iterLim=1e6, errThresh=1e-4):  # number of middle-level neurons
 	lev0Num = IN.shape[1]		 # 4 cols=number of indep inputs
@@ -83,10 +94,13 @@ def train(IN=None, OUT=None, midLayer=3, iterLim=1e6, errThresh=1e-4):  # number
 	syn12 = 2 * random((lev1Num, lev2Num)) - 1
 
 	print('------------- Start')
-	prtArr(IN,	'IN = numTrials X numInputs')
-	prtArr(syn01, 'syn01 = numInputs x numMidLayer')
-	prtArr(syn12, 'syn12 = numTrials x numMidLayer')
-	prtArr(OUT,   'OUT = numTrials x numOuputs')
+	prtArr(IN,	'  IN    = numTrials   x numInputs')
+	prtArr(syn01, 'syn01 = numInputs   x numMidLayer')
+	prtArr(syn12, 'syn12 = numMidLayer x numOutputs')
+	prtArr(OUT,   'OUT   = numTrials   x numOutputs')
+
+	#pd.DataFrame(syn01.flatten().T).shape
+	foo pd.DataFrame([syn01.flatten(order='F')])
 
 	for j in range(int(iterLim)):
 
@@ -101,8 +115,8 @@ def train(IN=None, OUT=None, midLayer=3, iterLim=1e6, errThresh=1e-4):  # number
 		syn01 += IN.T   @ lev1Dlta
 		totErr = (outErrs * outErrs).sum()
 		if (j % 10000==0):
-			print(f'{j:12.0f} ', end='')
-			print(f'err={totErr:10.4f} ', end='')
+			print(f'{j:12.0f}, ', end='')
+			print(f'err={totErr:10.5f}, ', end='')
 			prtArr(syn01, flatP=True)
 			# prtArr(syn12, flatP=True)			
 			print()
@@ -113,15 +127,44 @@ def train(IN=None, OUT=None, midLayer=3, iterLim=1e6, errThresh=1e-4):  # number
 
 	print('------------- Done')
 
-	prtArr(IN,	  'IN    = numTrials X numInputs')
-	prtArr(syn01, 'syn01 = numInputs x numMidLayer')
-	prtArr(lev1,  'lev1  = numTrials x numMidLayer')
-	prtArr(syn12, 'syn12 = numTrials x numMidLayer')
-	prtArr(lev2,  'lev2  = numTrials x numOutputs' )
-	prtArr(OUT,   'OUT   = numTrials x numOuputs')
+	prtArr(IN,	  'IN    = numTrials   x numInputs')
+	prtArr(syn01, 'syn01 = numInputs   x numMidLayer')
+	prtArr(lev1,  'lev1  = numTrials   x numMidLayer')
+	prtArr(syn12, 'syn12 = numMidLayer x numOut')
+	prtArr(lev2,  'lev2  = numTrials   x numOutputs' )
+	prtArr(OUT,   'OUT   = numTrials   x numOuputs')
+	print(f'numiters={j}: err = {(outErrs * outErrs).sum()}')
+	
 
-	print('err=',(outErrs * outErrs).sum())
 
+def main():
+
+	numTrain	 =  15 # number of training samples
+	tsPttrnLen   =   4 # length of input pattern timeseries
+	seriesStrt   = -25
+	scaleFactor  = 1e-3
+
+	if True:
+		IN, OUT = getCheckDummyData5()
+		train(IN=IN, OUT=OUT, iterLim=5e6, errThresh=1e-6)
+	if False:
+		if True: df = getStockSeries(stck='AAPL')  # as weekly
+		else:	df = pd.read_csv('./yfData.csv')
+		print(df.head)
+		print(df.shape)
+		# 1=dummy variable to identify AAPL
+		# inSet = [ np.append(df['AAPL'].loc[-di:-di+6].values, 1)
+		#	for di in range(-30,-20) ] # 10 trainig sample of 6 consecve weeks
+		inSet = [ np.append(df[di:di+tsPttrnLen].AAPL.values * scaleFactor, 1) for di in range(seriesStrt, seriesStrt + numTrain) ]
+		# 10 training sample of six consecutive wkly rtns
+		# TBD convert into Buy Sell: increase => Sell, decrease=>Buy
+		otSet = [ np.append(df[di+tsPttrnLen:di+tsPttrnLen+2].AAPL.values * scaleFactor, 1) for di in range(seriesStrt,seriesStrt + numTrain) ]
+		# try to predict next 2 wkly rtns
+		train(IN=np.vstack(inSet), OUT=np.vstack(otSet), lev1Num=10)
+		#train(IN=df.values, OUT=dfb.values, lev1Num=4)
+		#for v in res['Adj Close'][-100:]: print(v)
+
+main()
 
 # if True: df = getStockSeries(stck='AAPL')  # as weekly
 # else:	df = pd.read_csv('./yfData.csv')
@@ -139,38 +182,6 @@ def train(IN=None, OUT=None, midLayer=3, iterLim=1e6, errThresh=1e-4):  # number
 # otSet = [ np.append(df[di+tsPttrnLen:di+tsPttrnLen+2].AAPL.values * scaleFactor, 1)
 #		   for di in range(seriesStrt,seriesStrt + numTrain) ] # try to predict next 2 wkly rtns
 
-def main():
-
-	numTrain	 =  15 # number of training samples
-	tsPttrnLen   =   4 # length of input pattern timeseries
-	seriesStrt   = -25
-	scaleFactor  = 1e-3
-
-	if True:
-		IN, OUT = getCheckDummyData5()
-		train(IN=IN, OUT=OUT)
-	if False:
-		if True: df = getStockSeries(stck='AAPL')  # as weekly
-		else:	df = pd.read_csv('./yfData.csv')
-		print(df.head)
-		print(df.shape)
-		# 1=dummy variable to identify AAPL
-		# inSet = [ np.append(df['AAPL'].loc[-di:-di+6].values, 1)
-		#	for di in range(-30,-20) ] # 10 trainig sample of 6 consecve weeks
-		inSet = [ np.append(df[di:di+tsPttrnLen].AAPL.values * scaleFactor, 1)
-				  for di in range(seriesStrt, seriesStrt + numTrain) ]
-		# 10 training sample of six consecutive wkly rtns
-		# TBD convert into Buy Sell: increase => Sell, decrease=>Buy
-		otSet = [ np.append(df[di+tsPttrnLen:di+tsPttrnLen+2].AAPL.values *
-							scaleFactor, 1)
-				  for di in range(seriesStrt,seriesStrt + numTrain) ]
-		# try to predict next 2 wkly rtns
-		
-		train(IN=np.vstack(inSet), OUT=np.vstack(otSet), lev1Num=10)
-		#train(IN=df.values, OUT=dfb.values, lev1Num=4)
-		#for v in res['Adj Close'][-100:]: print(v)
-
-main()
 
 # junk
 	# if IN is None:
