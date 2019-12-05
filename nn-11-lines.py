@@ -5,6 +5,9 @@ from numpy.random import random, seed
 import pdb
 import yfinance as yf
 import pandas as pd
+import matplotlib as mp
+import matplotlib.pyplot as plt
+
 
 # sigmoid
 def sigmoid(x):   return 1 / (1 + np.exp(-x))
@@ -89,7 +92,7 @@ def train(IN=None, OUT=None, midLayer=3, iterLim=1e6, errThresh=1e-4):  # number
 	lev1Num = midLayer			 # 4 middle layer
 	lev2Num = OUT.shape[1]		 # 2 cols=number of indep inputs
 
-	seed(1)
+	#seed(1)
 	syn01 = 2 * random((lev0Num, lev1Num)) - 1
 	syn12 = 2 * random((lev1Num, lev2Num)) - 1
 
@@ -100,7 +103,7 @@ def train(IN=None, OUT=None, midLayer=3, iterLim=1e6, errThresh=1e-4):  # number
 	prtArr(OUT,   'OUT   = numTrials   x numOutputs')
 
 	#pd.DataFrame(syn01.flatten().T).shape
-	foo pd.DataFrame([syn01.flatten(order='F')])
+	wghtsLog = pd.DataFrame([syn01.flatten()])
 
 	for j in range(int(iterLim)):
 
@@ -114,11 +117,11 @@ def train(IN=None, OUT=None, midLayer=3, iterLim=1e6, errThresh=1e-4):  # number
 		syn12 += lev1.T @ lev2Dlta	  # update synapse weights
 		syn01 += IN.T   @ lev1Dlta
 		totErr = (outErrs * outErrs).sum()
-		if (j % 10000==0):
+		if (j % 1000==0):
 			print(f'{j:12.0f}, ', end='')
 			print(f'err={totErr:10.5f}, ', end='')
 			prtArr(syn01, flatP=True)
-			# prtArr(syn12, flatP=True)			
+			wghtsLog = wghtsLog.append([syn01.flatten()])  # prtArr(syn12, flatP=True)
 			print()
 		if totErr < errThresh: # sum of sqrd errors
 			print(outErrs)
@@ -134,7 +137,12 @@ def train(IN=None, OUT=None, midLayer=3, iterLim=1e6, errThresh=1e-4):  # number
 	prtArr(lev2,  'lev2  = numTrials   x numOutputs' )
 	prtArr(OUT,   'OUT   = numTrials   x numOuputs')
 	print(f'numiters={j}: err = {(outErrs * outErrs).sum()}')
-	
+
+	wghtsLog = wghtsLog.reset_index()
+	# plt.plot(wghtsLog.iloc[:, :3])
+	plt.plot(wghtsLog)
+	plt.show()
+
 
 
 def main():
@@ -146,7 +154,7 @@ def main():
 
 	if True:
 		IN, OUT = getCheckDummyData5()
-		train(IN=IN, OUT=OUT, iterLim=5e6, errThresh=1e-6)
+		train(IN=IN, OUT=OUT, midLayer=3, iterLim=1e6, errThresh=1e-6)
 	if False:
 		if True: df = getStockSeries(stck='AAPL')  # as weekly
 		else:	df = pd.read_csv('./yfData.csv')
