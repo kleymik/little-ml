@@ -20,7 +20,7 @@ def hyptandh(h): return (1 - h**2)  #  1 - tanh^2(x)
 def prtArr(arr, lbl=None, flatP=False):
 	if lbl: print('----', lbl, ' ', arr.shape)
 	for rw in arr:
-		for x in rw: print(f'{x:10.4f}', end='')
+		for x in rw: print(f'{x:5.3f}', end='')
 		if flatP: print(f'|', end='')
 		else:     print()
 	if flatP: print(f'|', end='')
