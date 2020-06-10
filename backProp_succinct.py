@@ -57,14 +57,23 @@ def go(IN, OUT):
 
 if __name__ == '__main__':
 
-    IN = np.array([[0, 0, 1, 1],            # 4 samples of input triple
-                   [1, 1, 1, 1],
-                   [0, 1, 1, 1],
-                   [1, 0, 1, 0]])
+    if True:
+        IN = np.array([[0, 0, 1, 1],            # 4 samples of input triple
+                       [1, 1, 1, 1],
+                       [0, 1, 1, 1],
+                       [1, 0, 1, 0]])
 
-    OUT = np.array([[0.5,                   # desired output for each sample
-                       1,
-                     0.75,
-                     0.5]]).T
+        OUT = np.array([[0.5,                   # desired output for each sample
+                         1,
+                         0.75,
+                         0.5]]).T
+    else:
+        IN = np.array([[0, 0,   1],             # 4 samples of input triple
+                       [1, 1,   1],
+                       [1, 0.7, 1],
+                       [0, 1,   1],
+                       [1, 0,   1]])
+        OUT = np.array([[0.5, 1.0, 0.8, 0.8, 0.7],                   # desired output for each sample
+                        [0.2, 1.0, 0.6, 0.7, 0.5]]).T
 
     go(IN, OUT)
