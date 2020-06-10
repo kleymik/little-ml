@@ -40,9 +40,9 @@ def go(IN, OUT):
 
         # backprop the error
         lev2Delta = (outErrs := (OUT - lev2)) * sigmoidds(lev2)
-        syn12 += lev1.T @ lev2Delta
+        syn12 += lev1.T @ lev2Delta          # orignal code has this after next statement(!?)
 
-        lev1Delta = lev2Delta @ syn12.T * sigmoidds(lev1)
+        lev1Delta = lev2Delta @ syn12.T       * sigmoidds(lev1)
         syn01 += lev0.T @ lev1Delta
 
         if j % 100 == 0: print('SQERR=', j, (ssq:= outErrs.T @ outErrs)[0][0])
@@ -51,7 +51,7 @@ def go(IN, OUT):
             print()
             break
 
-    print('RES=', lev2)
+    print('RES=',   lev2)
     print('SQERR=', ssq)
     prtArr(IN)
 
