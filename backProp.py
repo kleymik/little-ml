@@ -1,16 +1,25 @@
 # http://iamtrask.github.io/2015/07/12/basic-python-network/
 
 import numpy as np
+from numpy.random import random, seed
 
 def sigmoid(x):  return 1 / (1+np.exp(-x))
 def sigmoidd(x): return sigmoid(x) * (1 - sigmoid(x)) # derivative of sigmoid in terms of sigmoid
+def sigmoidds(s): return s * (1 - s)
+def prtArr(arr):
+    for rw in arr:
+        for x in rw:
+            print(f'{x:4.3f}  ', end='')
+        print()
+        # print(f'{x[0]:4.3f}  ', end='')
+        # print(sum(abs(lev2Dlta)))
 
 def go():
 
     inSize  = 4  # input dimensionality
     midSize = 4  # m 1 middle/ hidden layer
     outSize = 1  # output dimensionality
-    np.random.seed(1)
+    seed(1)
 
     IN = np.array([[0, 0, 1, 1],            # 4 samples of input triple
                    [1, 1, 1, 1],
@@ -34,11 +43,11 @@ def go():
 
         # backprop the error
         outErrs = (OUT - lev2)
-        lev2_delta = outErrs             * (lev2 * (1 - lev2))
-        syn1 += lev1.T @ lev2_delta
+        lev2Delta = outErrs * sigmoidds(lev2)
+        syn1 += lev1.T @ lev2Delta
 
-        lev1_delta = lev2_delta @ syn1.T * (lev1 * (1 - lev1))
-        syn0 += lev0.T @ lev1_delta
+        lev1Delta = lev2Delta @ syn1.T * sigmoidds(lev1)
+        syn0 += lev0.T @ lev1Delta
 
         if j % 100 == 0: print('SQERR=', j, (ssq:= outErrs.T @ outErrs)[0][0])
         if (ssq) < 1e-4: # sum of squared errors
@@ -48,5 +57,6 @@ def go():
 
     print('RES=', lev2)
     print('SQERR=', ssq)
+    prtArr(IN)
 
 if __name__ == '__main__': go()
