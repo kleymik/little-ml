@@ -14,22 +14,12 @@ def prtArr(arr, lbl=None):
         # print(sum(abs(lev2Dlta)))
     print()
 
-def go():
+def go(IN, OUT):
 
     inSize  = 4  # input dimensionality
     midSize = 4  # m 1 middle/ hidden layer
     outSize = 1  # output dimensionality
     seed(1)
-
-    IN = np.array([[0, 0, 1, 1],            # 4 samples of input triple
-                   [1, 1, 1, 1],
-                   [0, 1, 1, 1],
-                   [1, 0, 1, 0]])
-
-    OUT = np.array([[0.5,                   # desired output for each sample
-                       1,
-                     0.75,
-                     0.5]]).T
 
     syn01 = 2*np.random.random((inSize, midSize)) - 1 # 12 +/- 1 adjustable loadings on links gives 3x4 cross-wire to hidden layer
     syn12 = 2*np.random.random((midSize,      1)) - 1 #  4 +/- 1 adjsutable loadings onto one output node
@@ -49,9 +39,8 @@ def go():
         lev2 = sigmoid(lev1 @ syn12)
 
         # backprop the error
-        outErrs = (OUT - lev2)
-        lev2Delta = outErrs * sigmoidds(lev2)
-        syn1 += lev1.T @ lev2Delta
+        lev2Delta = (outErrs := (OUT - lev2)) * sigmoidds(lev2)
+        syn12 += lev1.T @ lev2Delta
 
         lev1Delta = lev2Delta @ syn12.T * sigmoidds(lev1)
         syn01 += lev0.T @ lev1Delta
@@ -66,4 +55,16 @@ def go():
     print('SQERR=', ssq)
     prtArr(IN)
 
-if __name__ == '__main__': go()
+if __name__ == '__main__':
+
+    IN = np.array([[0, 0, 1, 1],            # 4 samples of input triple
+                   [1, 1, 1, 1],
+                   [0, 1, 1, 1],
+                   [1, 0, 1, 0]])
+
+    OUT = np.array([[0.5,                   # desired output for each sample
+                       1,
+                     0.75,
+                     0.5]]).T
+
+    go(IN, OUT)
