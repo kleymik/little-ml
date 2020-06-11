@@ -3,10 +3,11 @@
 import numpy as np
 from numpy.random import random, seed
 
-def sigmoid(x):  return 1 / (1+np.exp(-x))
-def sigmoidd(x): return sigmoid(x) * (1 - sigmoid(x)) # derivative of sigmoid in terms of sigmoid
+def sigmoid(x):   return 1 / (1+np.exp(-x))
+def sigmoidd(x):  return sigmoid(x) * (1 - sigmoid(x)) # derivative of sigmoid in terms of sigmoid
 def sigmoidds(s): return s * (1 - s)
-def prtArr(arr, lbl=None):
+
+def printArr(arr, lbl=None):
     if lbl: print('----',lbl)
     for rw in arr:
         for x in rw: print(f'{x:4.3f}  ', end='')
@@ -21,21 +22,21 @@ def go(IN, OUT):
     outSize = 1  # output dimensionality
     seed(1)
 
-    syn01 = 2*np.random.random((inSize, midSize)) - 1 # 12 +/- 1 adjustable loadings on links gives 3x4 cross-wire to hidden layer
-    syn12 = 2*np.random.random((midSize,      1)) - 1 #  4 +/- 1 adjsutable loadings onto one output node
+    syn01 = 2*np.random.random((inSize,  midSize)) - 1  # 12 +/- 1 adjustable loadings on links gives 3x4 cross-wire to hidden layer
+    syn12 = 2*np.random.random((midSize, outSize1)) - 1 #  4 +/- 1 adjustable loadings onto one output node
 
     lev0 = IN                               # 4 samples of input triple
 
     print('------------- Start')
-    prtArr(IN,    'IN')
-    prtArr(syn01, 'syn01')
-    prtArr(syn12, 'syn12')
-    prtArr(OUT,   'OUT')
+    printArr(IN,    'IN')
+    printArr(syn01, 'syn01')
+    printArr(syn12, 'syn12')
+    printArr(OUT,   'OUT')
 
     for j in range(int(1e5)):
 
         # forward prop the response
-        lev1 = sigmoid(lev0 @ syn01)         # l1 = level 1 neuron state
+        lev1 = sigmoid(lev0 @ syn01)         # lev1 = level 1 neuron state
         lev2 = sigmoid(lev1 @ syn12)
 
         # backprop the error
@@ -53,7 +54,7 @@ def go(IN, OUT):
 
     print('RES=',   lev2)
     print('SQERR=', ssq)
-    prtArr(IN)
+    printArr(IN)
 
 if __name__ == '__main__':
 
