@@ -39,6 +39,7 @@ def go(IN, OUT, midSize=4, pnSteps=100, errThresh=1e-5, maxSteps=1e5):
             print(f'Minimisation Step: %8g' % j,
                    ', LEV1 SSQERR= %12.10f' % ((lev1Errs.T        @ lev1Errs)[0][0]),
                    ', LEV2 SSQERR= %12.10f' % ((ssqe:= lev2Errs.T @ lev2Errs)[0][0]))  # sum of squared errors
+
         if ssqe < 1e-4:
             print(lev2Errs.T)
             print(ssqe)
