@@ -29,8 +29,8 @@ def go(IN, OUT, midSize=4, pnSteps=100, errThresh=1e-5, maxSteps=1e5):
 
     for j in range(int(1e5)):
 
-        lev1 = sigmoid(lev0 @ syn01)               # forward propagate the response;  lev1 = level 1 neurons state
-        lev2 = sigmoid(lev1 @ syn12)               # forward propagate the response;  lev2 = level 2 neurons state
+        lev1 = sigmoid(lev0 @ syn01)               # forward propagate the response: lev1 = level 1 neurons state
+        lev2 = sigmoid(lev1 @ syn12)               # forward propagate the response: lev2 = level 2 neurons state
                                                    # back propagate the error
         syn12 += lev1.T @ (lev2Delta := ((lev2Errs := (OUT - lev2))          * sigmoidds(lev2)))
         syn01 += lev0.T @ (lev1Delta := ((lev1Errs := (lev2Delta @ syn12.T)) * sigmoidds(lev1)))
