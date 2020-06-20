@@ -7,21 +7,21 @@
 import numpy as np
 from numpy.random import random, seed
 
-def sigmoid(x):   return 1 / (1+np.exp(-x))
+def sigmoid(x):   return 1 / (1 + np.exp(-x))
 def sigmoidds(s): return s * (1 - s)
 
 def printArr(arr, lbl=None):
-    if lbl: print('----',lbl)
+    if lbl: print(f'---- {lbl}  {arr.shape[0]} X {arr.shape[1]}')
     for rw in arr:
         for x in rw: print(f'{x:4.3f}  ', end='')
         print()
     print()
 
-def go(IN, OUT, midSize=4):
+def go(IN, OUT, midSize=4, pnSteps=100, errThresh=1e-5, maxSteps=1e5):
 
-    seed(1)                                            # initialise adjustable loadings bertween +/-1
-    syn01 = 2*random((IN.shape[1],  midSize)) - 1      # on cross synapses to hidden layer "lev1"
-    syn12 = 2*random((midSize, OUT.shape[1])) - 1      # on cross synapses to output layer "lev2"
+    seed(1)                                            # initialise the adjustable weights between +1.0 and -1.0
+    syn01 = 2*random((IN.shape[1],  midSize)) - 1      # cross synapses to hidden layer "lev1"
+    syn12 = 2*random((midSize, OUT.shape[1])) - 1      # cross synapses to output layer "lev2"
 
     lev0 = IN                                          # 4 samples of input triple
 
@@ -32,12 +32,15 @@ def go(IN, OUT, midSize=4):
         lev1 = sigmoid(lev0 @ syn01)                   # forward propagate the response;  lev1 = level 1 neurons state
         lev2 = sigmoid(lev1 @ syn12)
                                                        # backpropagate the error
-        syn12 += lev1.T @ (lev2Delta := ((outErrs := (OUT - lev2)) * sigmoidds(lev2)))
-        syn01 += lev0.T @ (lev1Delta := (lev2Delta @ syn12.T       * sigmoidds(lev1)))
+        syn12 += lev1.T @ (lev2Delta := ((lev2Errs := (OUT - lev2))          * sigmoidds(lev2)))
+        syn01 += lev0.T @ (lev1Delta := ((lev1Errs := (lev2Delta @ syn12.T)) * sigmoidds(lev1)))
 
-        if j % 100 == 0: print('SSQERR=', j, (ssqe:= outErrs.T @ outErrs)[0][0])  # sum of squared errors
+        if j % pnSteps == 0:
+            print(f'Minimisation Step: %8g' % j,
+                   ', LEV1 SSQERR= %12.10f' % ((lev1Errs.T @ lev1Errs)[0][0]),
+                   ', LEV2 SSQERR= %12.10f' % ((ssqe:= lev2Errs.T @ lev2Errs)[0][0]))  # sum of squared errors
         if (ssqe) < 1e-4:
-            print(outErrs.T)
+            print(lev2Errs.T)
             print()
             break
 
@@ -45,9 +48,8 @@ def go(IN, OUT, midSize=4):
     printArr(syn01, 'syn01')
     printArr(syn12, 'syn12')
     printArr(OUT,   'OUT')
-
-    print('RES=',    lev2)
-    print('SSQERR=', ssqe)
+    printArr(lev2,  'RES=')
+    printArr(ssqe,  'SSQERR')
 
 if __name__ == '__main__':
 
@@ -59,6 +61,10 @@ if __name__ == '__main__':
                   1,
                   0.75,
                   0.5]]).T,
-       3)                                              # size of middle layer
+       midSize=3,                                      # num neurons in middle layer
+       pnSteps=50,                                     # print error after each pnSteps of minimisation
+       errThresh=1e-4,                                 # terminate when sum-squares error is below errThresh
+       maxSteps=1e5)                                   # terminate after maxSteps number of mimimisastion steps
+
 
 
