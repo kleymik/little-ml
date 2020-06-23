@@ -20,8 +20,8 @@ def printArr(arr, lbl=None):
 def go(IN, OUT, midSize=4, pnSteps=100, errThresh=1e-5, maxSteps=1e5):
 
     seed(1)                                        # initialise the adjustable weights between +1.0 and -1.0
-    syn01 = 2*random((IN.shape[1],  midSize)) - 1  # cross synapses to hidden layer "lev1"
-    syn12 = 2*random((midSize, OUT.shape[1])) - 1  # cross synapses to output layer "lev2"
+    syn01 = 2*random((IN.shape[1],  midSize)) - 1  # cross synapses from input samples to hidden layer (lev1)
+    syn12 = 2*random((midSize, OUT.shape[1])) - 1  # cross synapses from hidden layer (lev1) to output layer (lev2)
 
     lev0 = IN                                      # 4 samples of input triple
 
